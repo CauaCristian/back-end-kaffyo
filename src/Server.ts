@@ -8,8 +8,9 @@ try{
     dataSource.initialize();
     console.log(`Banco de dados Kaffyo conectado!`)
     app.listen(PORT,()=>{
-        console.log(`Api Kaffyo rodando na porta ${PORT}!`)
-    });
+            console.log(`Api Kaffyo rodando na porta ${PORT}!`)
+        }
+    );
 }catch(error){
     console.log(error)
 }
