@@ -1,5 +1,5 @@
 export enum InterestType{
     BUY = "BUY",
-    SALE = "SELL",
+    SALE = "SALE",
     RENT = "RENT"
 }

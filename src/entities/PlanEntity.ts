@@ -30,4 +30,5 @@ export class PlanEntity{
     
     @Column()
     updatedAt!:Date;
+    
 }

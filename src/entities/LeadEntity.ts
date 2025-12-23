@@ -1,7 +1,10 @@
-import { Column, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { LeadOrigin } from "../enum/LeadOrigin.js";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { InterestType } from "../enum/InterestType.js";
 import { UserEntity } from "./UserEntity.js";
+import { FunnelStageEntity } from "./FunnelStageEntity.js";
+import { LeadOriginEntity } from "./LeadOriginEntity.js";
+
+@Entity()
 export class LeadEntity {
 
     @PrimaryGeneratedColumn("uuid")
@@ -28,8 +31,11 @@ export class LeadEntity {
     @Column({type:"enum",enum:InterestType})
     interest!:InterestType;
 
-    @Column({type:"enum",enum:LeadOrigin})
-    origin!:LeadOrigin;
+    @ManyToOne(()=>LeadOriginEntity)
+    leadOrigin!:LeadOriginEntity;
+
+    @ManyToOne(()=>FunnelStageEntity,(funnelStageEntity)=>funnelStageEntity.leads)
+    currentFunnelStage!:FunnelStageEntity;
 
     @Column()
     lastContact!:Date;

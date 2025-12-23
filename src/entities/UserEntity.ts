@@ -3,6 +3,7 @@ import { PlanEntity } from "./PlanEntity.js";
 import { DocumentType } from "../enum/DocumentType.js";
 import { UserRole } from "../enum/UserRole.js";
 import { LeadEntity } from "./LeadEntity.js";
+
 @Entity()
 export class UserEntity{
 
@@ -38,7 +39,7 @@ export class UserEntity{
 
     @OneToMany(()=>LeadEntity,(leadEntity)=>leadEntity.business)
     businessLeads!:LeadEntity;
-    
+
     @OneToMany(()=>LeadEntity,(leadEntity)=>leadEntity.broker)
     brokerLeads!:LeadEntity;
 

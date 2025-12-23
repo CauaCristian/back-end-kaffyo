@@ -1,7 +1,0 @@
-export enum LeadOrigin{
-    ADS_LEAD = "ADS_LEAD",
-    ORGANIC_LEAD = "ORGANIC_LEAD",
-    IMPORTED_LEAD = "IMPORTED_LEAD",
-    INDICATION_LEAD = "INDICATION_LEAD",
-    OTHER = "OTHER"
-}
