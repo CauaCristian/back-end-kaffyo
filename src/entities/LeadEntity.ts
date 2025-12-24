@@ -1,8 +1,9 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { InterestType } from "../enum/InterestType.js";
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { UserEntity } from "./UserEntity.js";
 import { FunnelStageEntity } from "./FunnelStageEntity.js";
 import { LeadOriginEntity } from "./LeadOriginEntity.js";
+import { LeadInterest } from "../enum/LeadInterest.js";
+import { PropertyEntity } from "./PropertyEntity.js";
 
 @Entity()
 export class LeadEntity {
@@ -16,34 +17,37 @@ export class LeadEntity {
     @ManyToOne(()=>UserEntity,(userEntity)=>userEntity.brokerLeads)
     broker!:UserEntity;
 
-    @Column({length:100})
-    name!:string;
-
-    @Column()
-    email!:string;
-
-    @Column({length:14})
-    phone!:string;
-
-    @Column({length:14})
-    whatsapp!:string;
-
-    @Column({type:"enum",enum:InterestType})
-    interest!:InterestType;
-
-    @ManyToOne(()=>LeadOriginEntity)
+    @ManyToOne(()=>LeadOriginEntity,(leadOriginEntity)=>leadOriginEntity.leads)
     leadOrigin!:LeadOriginEntity;
 
     @ManyToOne(()=>FunnelStageEntity,(funnelStageEntity)=>funnelStageEntity.leads)
     currentFunnelStage!:FunnelStageEntity;
 
-    @Column()
+    @OneToMany(()=>PropertyEntity,(propertyEntity)=>propertyEntity.owner)
+    properties!:PropertyEntity[];
+
+    @Column({type:"varchar",length:100})
+    name!:string;
+
+    @Column({type:"varchar"})
+    email!:string;
+
+    @Column({type:"varchar",length:14})
+    phone!:string;
+
+    @Column({type:"varchar",length:14})
+    whatsapp!:string;
+
+    @Column({type:"enum",enum:LeadInterest})
+    interest!:LeadInterest;
+
+    @Column({type:"timestamptz"})
     lastContact!:Date;
 
-    @Column({default:Date.now()})
+    @CreateDateColumn({type:"timestamptz"})
     createdAt!:Date;
 
-    @Column()
+    @UpdateDateColumn({type:"timestamptz"})
     updatedAt!:Date;
 
 }

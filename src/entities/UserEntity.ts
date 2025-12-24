@@ -3,6 +3,7 @@ import { PlanEntity } from "./PlanEntity.js";
 import { DocumentType } from "../enum/DocumentType.js";
 import { UserRole } from "../enum/UserRole.js";
 import { LeadEntity } from "./LeadEntity.js";
+import { PropertyEntity } from "./PropertyEntity.js";
 
 @Entity()
 export class UserEntity{
@@ -16,16 +17,31 @@ export class UserEntity{
     @OneToMany(()=>UserEntity,(UserEntity)=>UserEntity.business)
     brokers!:UserEntity[];
 
-    @Column({unique:true})
+    @ManyToOne(()=>PlanEntity,(planEntity)=>planEntity.users)
+    plan!:PlanEntity;
+
+    @OneToMany(()=>LeadEntity,(leadEntity)=>leadEntity.business)
+    businessLeads!:LeadEntity[];
+
+    @OneToMany(()=>LeadEntity,(leadEntity)=>leadEntity.broker)
+    brokerLeads!:LeadEntity[];
+
+    @OneToMany(()=>PropertyEntity,(propertyEntity)=>propertyEntity.business)
+    businessProperties!:PropertyEntity[];
+
+    @OneToMany(()=>PropertyEntity,(propertyEntity)=>propertyEntity.broker)
+    brokerProperties!:PropertyEntity[];
+
+    @Column({type:"varchar",unique:true})
     email!:string;
 
-    @Column()
+    @Column({type:"varchar"})
     password!:string;
 
-    @Column({length:50})
+    @Column({type:"varchar",length:50})
     name!:string;
 
-    @Column({length:50})
+    @Column({type:"varchar",length:50})
     surname!:string;
 
     @Column({type:"enum",enum:DocumentType})
@@ -34,19 +50,10 @@ export class UserEntity{
     @Column({type:"enum",enum:UserRole})
     role!:UserRole;
 
-    @ManyToOne(()=>PlanEntity,(planEntity)=>planEntity.users)
-    plan!:PlanEntity;
-
-    @OneToMany(()=>LeadEntity,(leadEntity)=>leadEntity.business)
-    businessLeads!:LeadEntity;
-
-    @OneToMany(()=>LeadEntity,(leadEntity)=>leadEntity.broker)
-    brokerLeads!:LeadEntity;
-
-    @CreateDateColumn()
+    @CreateDateColumn({type:"timestamptz"})
     createdAt!: Date;
 
-    @UpdateDateColumn()
+    @UpdateDateColumn({type:"timestamptz"})
     updatedAt!: Date;
 
 }

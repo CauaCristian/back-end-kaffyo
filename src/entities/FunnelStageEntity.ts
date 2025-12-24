@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne,OneToMany,PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne,OneToMany,PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { FunnelEntity } from "./FunnelEntity.js";
 import { LeadEntity } from "./LeadEntity.js";
 
@@ -8,28 +8,28 @@ export class FunnelStageEntity{
     @PrimaryGeneratedColumn("uuid")
     id!:string;
 
-    @Column({length:50})
-    name!:string;
-
-    @Column()
-    position!:number;
-
-    @Column()
-    isFinal!:boolean;
-
-    @Column()
-    isLost!:boolean;
-
     @ManyToOne(()=>FunnelEntity,(FunnelEntity)=>FunnelEntity.stages)
     funnel!:FunnelEntity;
 
     @OneToMany(()=>LeadEntity,(LeadEntity)=>LeadEntity.currentFunnelStage)
     leads!:LeadEntity[];
 
-    @Column({default:Date.now()})
+    @Column({type:"varchar",length:50})
+    name!:string;
+
+    @Column({type:"int"})
+    position!:number;
+
+    @Column({type:"boolean"})
+    isFinal!:boolean;
+
+    @Column({type:"boolean"})
+    isLost!:boolean;
+
+    @CreateDateColumn({type:"timestamptz"})
     createdAt!:Date;
 
-    @Column()
+    @UpdateDateColumn({type:"timestamptz"})
     updatedAt!:Date;
 
 }

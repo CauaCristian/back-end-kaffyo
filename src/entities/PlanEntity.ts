@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { UserEntity } from "./UserEntity.js";
 
 @Entity()
@@ -7,28 +7,28 @@ export class PlanEntity{
     @PrimaryGeneratedColumn("uuid")
     id!:string;
 
-    @Column({length:50})
+    @OneToMany(()=>UserEntity,(userEntity)=>userEntity.plan)
+    users!:UserEntity[];
+
+    @Column({type:"varchar",length:50})
     name!:string;
 
     @Column({type:"text"})
     description!:string;
 
-    @Column({type:"float",precision:2})
+    @Column({type:"numeric",precision:10,scale:2})
     price!:number;
 
-    @Column()
+    @Column({type:"boolean"})
     isActive!:boolean;
 
-    @Column()
+    @Column({type:"boolean"})
     isPublic!:boolean;
 
-    @OneToMany(()=>UserEntity,(userEntity)=>userEntity.plan)
-    users!:UserEntity[];
-
-    @Column({default:Date.now()})
+    @CreateDateColumn({type:"timestamptz"})
     createdAt!:Date;
     
-    @Column()
+    @UpdateDateColumn({type:"timestamptz"})
     updatedAt!:Date;
     
 }

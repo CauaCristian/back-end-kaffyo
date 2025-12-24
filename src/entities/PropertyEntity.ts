@@ -1,9 +1,9 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { PropertyTypeEntity } from "./PropertyTypeEntity.js";
-import { Objective } from "../enum/Objective.js";
+import { PropertyObjective } from "../enum/PropertyObjective.js";
 import { PropertyStatus } from "../enum/PropertyStatus.js";
-import { PropertyOwnerEntity } from "./PropertyOwnerEntity.js";
 import { UserEntity } from "./UserEntity.js";
+import { LeadEntity } from "./LeadEntity.js";
 
 @Entity()
 export class PropertyEntity{
@@ -11,25 +11,25 @@ export class PropertyEntity{
     @PrimaryGeneratedColumn("uuid")
     id!:string;
 
-    @ManyToOne(()=>PropertyOwnerEntity)
-    owner!:PropertyOwnerEntity;
+    @ManyToOne(()=>LeadEntity,(leadEntity)=>leadEntity.properties)
+    owner!:LeadEntity;
 
-    @ManyToOne(()=>UserEntity)
+    @ManyToOne(()=>UserEntity,(userEntity)=>userEntity.businessProperties)
     business!:UserEntity;
     
-    @ManyToOne(()=>UserEntity)
+    @ManyToOne(()=>UserEntity,(userEntity)=>userEntity.brokerProperties)
     broker!:UserEntity;
 
-    @ManyToOne(()=>PropertyTypeEntity)
+    @ManyToOne(()=>PropertyTypeEntity,(propertyTypeEntity)=>propertyTypeEntity.properties)
     type!:PropertyTypeEntity;
 
-    @Column({type:"enum",enum:Objective})
-    objective!:Objective;
+    @Column({type:"enum",enum:PropertyObjective})
+    objective!:PropertyObjective;
 
-    @Column({type:"float", precision:2})
+    @Column({type:"numeric", precision:10,scale:2})
     price!:number;
 
-    @Column()
+    @Column({type:"varchar"})
     address!:string;
 
     @Column({type:"text"})

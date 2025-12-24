@@ -1,4 +1,5 @@
-import app from "./App.js"
+import "reflect-metadata";
+import app from "./App.js";
 import { dataSource } from "./source/DataSource.js";
 
 const PORT = process.env.PORT ?? 3000;

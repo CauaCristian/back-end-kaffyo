@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { LeadEntity } from "./LeadEntity.js";
-import { FunnelStageEntity } from "./FunnelStageEntity.js";
-import { UserEntity } from "./UserEntity.js";
+import { LeadEntity } from "../LeadEntity.js";
+import { FunnelStageEntity } from "../FunnelStageEntity.js";
+import { UserEntity } from "../UserEntity.js";
 
 @Entity()
 export class LeadEntryFunnelStageEntity{
@@ -18,10 +18,10 @@ export class LeadEntryFunnelStageEntity{
     @ManyToOne(()=>UserEntity)
     movedBy!:UserEntity;
 
-    @CreateDateColumn()
+    @CreateDateColumn({type:"timestamptz"})
     enteredAt!:Date;
 
-    @Column({nullable:true})
+    @Column({type:"timestamptz",nullable:true})
     exitedAt!:Date;
 
 }

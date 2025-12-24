@@ -1,4 +1,4 @@
-export enum InterestType{
+export enum LeadInterest{
     BUY = "BUY",
     SALE = "SALE",
     RENT = "RENT"

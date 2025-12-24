@@ -1,5 +1,4 @@
 import { DataSource } from "typeorm";
-import "reflect-metadata"
 import "pg"
 
 export const dataSource = new DataSource(
@@ -10,6 +9,9 @@ export const dataSource = new DataSource(
         username:process.env.DB_USERNAME||"",
         password:process.env.DB_PASSWORD||"",
         database:process.env.DB_DATABASE||"",
-        entities:["../entities/*.ts"],
+        entities: [
+            "src/entities/relations/**","src/entities/**"
+        ],
+        synchronize: true // tirar dps que adicionar as migrations
     }
 );

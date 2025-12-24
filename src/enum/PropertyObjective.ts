@@ -1,4 +1,4 @@
-export enum Objective{
+export enum PropertyObjective{
     SALE = "SALE",
     RENT = "RENT"
 }

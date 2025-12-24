@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { LeadEntity } from "./LeadEntity.js";
 
 @Entity()
 export class LeadOriginEntity{
@@ -6,16 +7,20 @@ export class LeadOriginEntity{
     @PrimaryGeneratedColumn("uuid")
     id!:string;
 
-    @Column({length:50})
+    @OneToMany(()=>LeadEntity,(leadEntity)=>leadEntity.leadOrigin)
+    leads!:LeadEntity[];
+
+    @Column({type:"varchar",length:50})
     name!:string;
 
     @Column({type:"text"})
     description!:string;
 
-    @CreateDateColumn()
+    @CreateDateColumn({type:"timestamptz"})
     createdAt!:Date;
 
-    @UpdateDateColumn()
+    @UpdateDateColumn({type:"timestamptz"})
     updatedAt!:Date;
+
     
 }
