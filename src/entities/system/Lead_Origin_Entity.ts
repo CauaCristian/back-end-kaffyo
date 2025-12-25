@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { LeadEntity } from "./LeadEntity.js";
+import { LeadEntity } from "../Lead_Entity.js";
 
 @Entity()
 export class LeadOriginEntity{

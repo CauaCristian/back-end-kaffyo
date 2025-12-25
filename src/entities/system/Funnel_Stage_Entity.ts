@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, Entity, ManyToOne,OneToMany,PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { FunnelEntity } from "./FunnelEntity.js";
-import { LeadEntity } from "./LeadEntity.js";
+import { FunnelEntity } from "./Funnel_Entity.js";
+import { LeadEntity } from "../Lead_Entity.js";
 
 @Entity()
 export class FunnelStageEntity{
@@ -8,7 +8,7 @@ export class FunnelStageEntity{
     @PrimaryGeneratedColumn("uuid")
     id!:string;
 
-    @ManyToOne(()=>FunnelEntity,(FunnelEntity)=>FunnelEntity.stages)
+    @ManyToOne(()=>FunnelEntity)
     funnel!:FunnelEntity;
 
     @OneToMany(()=>LeadEntity,(LeadEntity)=>LeadEntity.currentFunnelStage)

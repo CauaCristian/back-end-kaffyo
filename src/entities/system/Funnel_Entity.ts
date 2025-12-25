@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { FunnelStageEntity } from "./FunnelStageEntity.js";
+import { FunnelStageEntity } from "./Funnel_Stage_Entity.js";
 
 @Entity()
 export class FunnelEntity{

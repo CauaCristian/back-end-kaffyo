@@ -10,8 +10,8 @@ export const dataSource = new DataSource(
         password:process.env.DB_PASSWORD||"",
         database:process.env.DB_DATABASE||"",
         entities: [
-            "src/entities/relations/**","src/entities/**"
+            "src/entities/relations/**", "src/entities/**", "src/entities/system/**"
         ],
-        synchronize: true // tirar dps que adicionar as migrations
+        synchronize: true // TO-DO tirar dps que adicionar as migrations
     }
 );

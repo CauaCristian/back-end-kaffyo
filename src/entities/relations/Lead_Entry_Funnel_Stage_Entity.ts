@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { LeadEntity } from "../LeadEntity.js";
-import { FunnelStageEntity } from "../FunnelStageEntity.js";
-import { UserEntity } from "../UserEntity.js";
+import { LeadEntity } from "../Lead_Entity.js";
+import { FunnelStageEntity } from "../system/Funnel_Stage_Entity.js";
+import { UserEntity } from "../User_Entity.js";
 
 @Entity()
 export class LeadEntryFunnelStageEntity{

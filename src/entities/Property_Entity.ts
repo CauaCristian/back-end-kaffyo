@@ -1,9 +1,10 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { PropertyTypeEntity } from "./PropertyTypeEntity.js";
-import { PropertyObjective } from "../enum/PropertyObjective.js";
-import { PropertyStatus } from "../enum/PropertyStatus.js";
-import { UserEntity } from "./UserEntity.js";
-import { LeadEntity } from "./LeadEntity.js";
+import { PropertyTypeEntity } from "./system/Property_Type_Entity.js";
+import { PropertyObjective } from "../enum/Property_Objective.js";
+import { PropertyStatus } from "../enum/Property_Status.js";
+import { UserEntity } from "./User_Entity.js";
+import { LeadEntity } from "./Lead_Entity.js";
+import { TenantEntity } from "./Tenant_Entity.js";
 
 @Entity()
 export class PropertyEntity{
@@ -11,14 +12,11 @@ export class PropertyEntity{
     @PrimaryGeneratedColumn("uuid")
     id!:string;
 
-    @ManyToOne(()=>LeadEntity,(leadEntity)=>leadEntity.properties)
-    owner!:LeadEntity;
+    @ManyToOne(()=>TenantEntity)
+    tenant!:TenantEntity;
 
-    @ManyToOne(()=>UserEntity,(userEntity)=>userEntity.businessProperties)
-    business!:UserEntity;
-    
-    @ManyToOne(()=>UserEntity,(userEntity)=>userEntity.brokerProperties)
-    broker!:UserEntity;
+    @ManyToOne(()=>LeadEntity)
+    owner!:LeadEntity;
 
     @ManyToOne(()=>PropertyTypeEntity,(propertyTypeEntity)=>propertyTypeEntity.properties)
     type!:PropertyTypeEntity;
