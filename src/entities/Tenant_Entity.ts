@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { PlanEntity } from "./system/Plan_Entity.js";
-import { TenantType } from "../enum/Tenant_Type.js";
+import { PlanEntity } from "./system/Plan_Entity";
+import { TenantType } from "../enum/Tenant_Type";
 
 @Entity()
 export class TenantEntity{

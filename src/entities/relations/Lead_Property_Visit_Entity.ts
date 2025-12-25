@@ -1,7 +1,7 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { LeadEntity } from "../Lead_Entity.js";
-import { PropertyEntity } from "../Property_Entity.js";
-import { UserEntity } from "../User_Entity.js";
+import { LeadEntity } from "../Lead_Entity";
+import { PropertyEntity } from "../Property_Entity";
+import { UserEntity } from "../User_Entity";
 
 @Entity()
 export class LeadPropertyVisitEntity{

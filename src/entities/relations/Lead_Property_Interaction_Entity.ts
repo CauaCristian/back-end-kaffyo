@@ -1,7 +1,8 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { LeadEntity } from "../Lead_Entity.js";
-import { PropertyEntity } from "../Property_Entity.js";
-import { LeadPropertyInteractionStatus } from "../../enum/LeadPropertyInteractionStatus.js";
+import { LeadEntity } from "../Lead_Entity";
+import { PropertyEntity } from "../Property_Entity";
+import { LeadPropertyInteractionStatus } from "../../enum/Lead_Property_Interaction_Status";
+
 @Entity()
 export class LeadPropertyInteractionEntity{
     

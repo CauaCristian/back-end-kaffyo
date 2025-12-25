@@ -1,8 +1,8 @@
 import {Entity,Column,PrimaryGeneratedColumn,ManyToOne,CreateDateColumn, UpdateDateColumn, OneToMany} from "typeorm"
-import { DocumentType } from "../enum/Document_Type.js";
-import { UserRole } from "../enum/User_Role.js";
-import { LeadEntity } from "./Lead_Entity.js";
-import { TenantEntity } from "./Tenant_Entity.js";
+import { TenantEntity } from "./Tenant_Entity";
+import { LeadEntity } from "./Lead_Entity";
+import { UserRole } from "../enum/User_Role";
+import { DocumentType } from "../enum/Document_Type";
 
 @Entity()
 export class UserEntity{

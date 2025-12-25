@@ -1,6 +1,5 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { UserEntity } from "../User_Entity.js";
-import { TenantEntity } from "../TenantEntity.js";
+import { TenantEntity } from "../Tenant_Entity";
 
 @Entity()
 export class PlanEntity{
@@ -9,7 +8,7 @@ export class PlanEntity{
     id!:string;
 
     @OneToMany(()=>TenantEntity,(tenantEntity)=>tenantEntity.plan)
-    tenants!:UserEntity[];
+    tenants!:TenantEntity[];
 
     @Column({type:"varchar",length:50})
     name!:string;

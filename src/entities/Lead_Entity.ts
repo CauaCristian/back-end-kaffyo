@@ -1,10 +1,9 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { UserEntity } from "./User_Entity.js";
-import { FunnelStageEntity } from "./system/Funnel_Stage_Entity.js";
-import { LeadOriginEntity } from "./system/Lead_Origin_Entity.js";
-import { LeadInterest } from "../enum/Lead_Interest.js";
-import { PropertyEntity } from "./Property_Entity.js";
-import { TenantEntity } from "./Tenant_Entity.js";
+import { UserEntity } from "./User_Entity.ts";
+import { FunnelStageEntity } from "./system/Funnel_Stage_Entity.ts";
+import { LeadOriginEntity } from "./system/Lead_Origin_Entity.ts";
+import { LeadInterest } from "../enum/Lead_Interest.ts";
+import { TenantEntity } from "./Tenant_Entity.ts";
 
 @Entity()
 export class LeadEntity {

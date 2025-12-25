@@ -1,14 +1,10 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { FunnelStageEntity } from "./Funnel_Stage_Entity.js";
 
 @Entity()
 export class FunnelEntity{
 
     @PrimaryGeneratedColumn("uuid")
     id!:string;
-
-    @OneToMany(()=>FunnelStageEntity,(funnelStageEntity)=>funnelStageEntity.funnel)
-    stages!:FunnelStageEntity[];
 
     @Column({type:"varchar",length:50})
     name!:string;

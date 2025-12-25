@@ -1,10 +1,9 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { PropertyTypeEntity } from "./system/Property_Type_Entity.js";
-import { PropertyObjective } from "../enum/Property_Objective.js";
-import { PropertyStatus } from "../enum/Property_Status.js";
-import { UserEntity } from "./User_Entity.js";
-import { LeadEntity } from "./Lead_Entity.js";
-import { TenantEntity } from "./Tenant_Entity.js";
+import { TenantEntity } from "./Tenant_Entity";
+import { LeadEntity } from "./Lead_Entity";
+import { PropertyTypeEntity } from "./system/Property_Type_Entity";
+import { PropertyObjective } from "../enum/Property_Objective";
+import { PropertyStatus } from "../enum/Property_Status";
 
 @Entity()
 export class PropertyEntity{
