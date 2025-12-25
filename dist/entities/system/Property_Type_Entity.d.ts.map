@@ -1,0 +1,1 @@
+{"version":3,"file":"Property_Type_Entity.d.ts","sourceRoot":"","sources":["../../../src/entities/system/Property_Type_Entity.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,cAAc,EAAE,MAAM,oBAAoB,CAAC;AAEpD,qBACa,kBAAkB;IAG3B,EAAE,EAAE,MAAM,CAAC;IAGX,UAAU,EAAE,cAAc,EAAE,CAAC;IAG7B,IAAI,EAAE,MAAM,CAAC;IAGb,WAAW,EAAE,MAAM,CAAC;IAGpB,SAAS,EAAE,IAAI,CAAC;IAGhB,SAAS,EAAE,IAAI,CAAC;CAEnB"}

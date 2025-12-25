@@ -1,5 +1,5 @@
-import { dataSource } from "../source/Data_Source.js";
-import { UserEntity } from "../entities/User_Entity.js";
+import { dataSource } from "../source/Data_Source";
+import { UserEntity } from "../entities/User_Entity";
 
 export class UserRepository{
 

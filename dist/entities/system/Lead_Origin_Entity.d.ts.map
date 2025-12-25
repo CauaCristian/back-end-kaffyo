@@ -1,0 +1,1 @@
+{"version":3,"file":"Lead_Origin_Entity.d.ts","sourceRoot":"","sources":["../../../src/entities/system/Lead_Origin_Entity.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,UAAU,EAAE,MAAM,gBAAgB,CAAC;AAE5C,qBACa,gBAAgB;IAGzB,EAAE,EAAE,MAAM,CAAC;IAGX,KAAK,EAAE,UAAU,EAAE,CAAC;IAGpB,IAAI,EAAE,MAAM,CAAC;IAGb,WAAW,EAAE,MAAM,CAAC;IAGpB,SAAS,EAAE,IAAI,CAAC;IAGhB,SAAS,EAAE,IAAI,CAAC;CAGnB"}
