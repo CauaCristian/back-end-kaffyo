@@ -18,4 +18,8 @@ export class UserRepository{
         });
     }
 
+    async createUser(userEntity:UserEntity){
+        return this.repo.create(userEntity);
+    }
+
 }
