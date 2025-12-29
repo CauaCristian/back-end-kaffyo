@@ -22,7 +22,7 @@ export class TenantEntity{
     @Column({type:"int"})
     maxUsers!: number;
 
-    @Column({ type: "json", nullable: true })
+    @Column({ type: "json", nullable: true})
     settings!: Record<string, any>;
 
     @CreateDateColumn({type:"timestamptz"})

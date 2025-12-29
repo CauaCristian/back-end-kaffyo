@@ -1,4 +1,4 @@
-import {Entity,Column,PrimaryGeneratedColumn,ManyToOne,CreateDateColumn, UpdateDateColumn, OneToMany} from "typeorm"
+import {Entity,Column,PrimaryGeneratedColumn,ManyToOne,CreateDateColumn, UpdateDateColumn, OneToMany, JoinColumn} from "typeorm"
 import { TenantEntity } from "./Tenant_Entity";
 import { LeadEntity } from "./Lead_Entity";
 import { UserRole } from "../enum/User_Role";
@@ -10,10 +10,10 @@ export class UserEntity{
     @PrimaryGeneratedColumn("uuid")
     id!:string;
 
-    @ManyToOne(()=>TenantEntity)
+    @ManyToOne(()=>TenantEntity,{nullable:true})
     tenant!:TenantEntity;
 
-    @OneToMany(()=>LeadEntity,(leadEntity)=>leadEntity.broker)
+    @OneToMany(()=>LeadEntity,(leadEntity)=>leadEntity.broker,{nullable:true})
     leads!:LeadEntity[];
 
     @Column({type:"varchar",unique:true})
@@ -29,12 +29,15 @@ export class UserEntity{
     surname!:string;
 
     @Column({type:"enum",enum:DocumentType})
-    document!:DocumentType;
+    documentType!:DocumentType;
 
-    @Column({type:"enum",enum:UserRole})
+    @Column({nullable:false,type:"varchar",unique:true,length:14})
+    document!:string;
+
+    @Column({type:"enum",enum:UserRole,nullable:true})
     role!:UserRole;
 
-    @Column({ type: "json", nullable: true })
+    @Column({ type: "json", nullable: true})
     settings!: Record<string, any>;
 
     @CreateDateColumn({type:"timestamptz"})
