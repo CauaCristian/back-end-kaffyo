@@ -1,8 +1,11 @@
-import { IsEmail, IsEnum, IsString, Length,MaxLength} from "class-validator";
+import { IsEmail, IsEnum, IsString, IsUUID, Length,MaxLength} from "class-validator";
 import { DocumentType } from "../enum/Document_Type";
 import { DocumentIsValid } from "../decorators/Document_Is_Valid";
 
 export class UserCreateDTO{ 
+
+    @IsUUID()
+    id!:string;
 
     @IsString() 
     @MaxLength(50) 

@@ -1,6 +1,9 @@
-import { IsObject, IsString, MaxLength } from "class-validator";
+import { IsObject, IsString, IsUUID, MaxLength } from "class-validator";
 
 export class UserUpdateDTO{
+
+    @IsUUID()
+    id!:string;
 
     @IsString() 
     @MaxLength(50) 

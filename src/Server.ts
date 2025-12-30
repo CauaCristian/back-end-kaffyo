@@ -1,15 +1,13 @@
 import "reflect-metadata";
 import app from "./App";
 import { dataSource } from "./source/Data_Source";
-
-const PORT = process.env.PORT ?? 3000;
-
+import {serverConfig} from "./config/Server_Config"
 
 try{
     dataSource.initialize();
     console.log(`Banco de dados Kaffyo conectado!`)
-    app.listen(PORT,()=>{
-            console.log(`Api Kaffyo rodando na porta ${PORT}!`)
+    app.listen(serverConfig.serverPort,()=>{
+            console.log(`Api Kaffyo rodando na porta ${serverConfig.serverPort}!`)
         }
     );
 }catch(error){

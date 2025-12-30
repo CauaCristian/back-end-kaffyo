@@ -44,7 +44,7 @@ export class UserRepository extends Repository<UserEntity>{
 
     }
 
-    async findById(userId:string,tenantId:string):Promise<UserEntity | null>{
+    async findByIdAndTenant(userId:string,tenantId:string):Promise<UserEntity | null>{
         
         return await this.findOne({
             where:{
@@ -56,6 +56,17 @@ export class UserRepository extends Repository<UserEntity>{
         });
 
     }
+
+    async findById(userId:string):Promise<UserEntity | null>{
+        
+        return await this.findOne({
+            where:{
+                id:userId,
+            }
+        });
+
+    }
+
 
     async findByEmail(email:string):Promise<UserEntity | null>{
         
