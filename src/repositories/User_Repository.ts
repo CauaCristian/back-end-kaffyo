@@ -1,6 +1,6 @@
 import { Repository } from "typeorm";
 import { UserEntity } from "../entities/User_Entity";
-import { PaginatedResponse } from "../interface/Paginated_Response";
+import { PaginatedResponse } from "../interfaces/Paginated_Response";
 
 export class UserRepository extends Repository<UserEntity>{
     

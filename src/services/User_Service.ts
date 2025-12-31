@@ -1,8 +1,8 @@
 import { UserEntity } from "../entities/User_Entity";
 import { UserRole } from "../enum/User_Role";
-import { PaginatedResponse } from "../interface/Paginated_Response";
+import { PaginatedResponse } from "../interfaces/Paginated_Response";
 import { UserRepository } from "../repositories/User_Repository";
-import { dataSource } from "../source/Data_Source";
+import { dataSource } from "../sources/Data_Source";
 import createHttpError from "http-errors";
 import { UserCreateDTO } from "../dto/User_Create_DTO";
 import bcrypt from "bcryptjs";

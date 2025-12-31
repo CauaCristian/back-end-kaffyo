@@ -1,6 +1,6 @@
 import * as jwt from "jsonwebtoken";
-import { JwtPayload } from "../interface/Jwt_Payload";
-import { jwtConfig } from "../config/Jwt_Config";
+import { JwtPayload } from "../interfaces/Jwt_Payload";
+import { jwtConfig } from "../configs/Jwt_Config";
 import createHttpError from "http-errors";
 
 export class TokenService{

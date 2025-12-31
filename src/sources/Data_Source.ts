@@ -1,6 +1,6 @@
 import { DataSource, Db } from "typeorm";
 import "pg";
-import { dbConfig } from "../config/DB_Config";
+import { dbConfig } from "../configs/DB_Config";
 import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConnectionOptions";
 
 export const dataSource = new DataSource(

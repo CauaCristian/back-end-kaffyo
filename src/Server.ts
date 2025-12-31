@@ -1,15 +1,26 @@
 import "reflect-metadata";
 import app from "./App";
-import { dataSource } from "./source/Data_Source";
-import {serverConfig} from "./config/Server_Config"
+import { dataSource } from "./sources/Data_Source";
+import {serverConfig} from "./configs/Server_Config"
+import cookieParser from "cookie-parser";
 
-try{
-    dataSource.initialize();
-    console.log(`Banco de dados Kaffyo conectado!`)
-    app.listen(serverConfig.serverPort,()=>{
-            console.log(`Api Kaffyo rodando na porta ${serverConfig.serverPort}!`)
-        }
-    );
-}catch(error){
-    console.log(error)
+
+async function initialize() {
+
+    try {
+        await dataSource.initialize();
+        console.log("Banco de dados conectado!");
+
+        app.use(cookieParser());
+
+        app.listen(serverConfig.serverPort, () => {
+            console.log(`API rodando na porta ${serverConfig.serverPort}!`);
+        });
+
+    } catch (error) {
+        console.error("Erro ao iniciar API:", error);
+    }
+
 }
+
+initialize();
