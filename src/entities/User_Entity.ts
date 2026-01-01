@@ -1,4 +1,4 @@
-import {Entity,Column,PrimaryGeneratedColumn,ManyToOne,CreateDateColumn, UpdateDateColumn, OneToMany, JoinColumn} from "typeorm"
+import {Entity,Column,PrimaryGeneratedColumn,ManyToOne,CreateDateColumn, UpdateDateColumn, OneToMany, JoinColumn, DeleteDateColumn} from "typeorm"
 import { TenantEntity } from "./Tenant_Entity";
 import { LeadEntity } from "./Lead_Entity";
 import { UserRole } from "../enum/User_Role";
@@ -37,13 +37,19 @@ export class UserEntity{
     @Column({type:"enum",enum:UserRole,nullable:true})
     role!:UserRole;
 
+    @Column({type:"varchar",nullable:true})
+    refreshToken!:string;
+
+    @Column({type:"timestamptz",nullable:true})
+    refreshTokenExpiresAt!:Date;
+
     @Column({ type: "json", nullable: true})
     settings!: Record<string, any>;
 
     @CreateDateColumn({type:"timestamptz"})
     createdAt!: Date;
 
-    @UpdateDateColumn({type:"timestamptz"})
+    @UpdateDateColumn({type:"timestamptz",nullable:true})
     updatedAt!: Date;
 
 }

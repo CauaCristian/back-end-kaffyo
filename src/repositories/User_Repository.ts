@@ -67,8 +67,7 @@ export class UserRepository extends Repository<UserEntity>{
 
     }
 
-
-    async findByEmail(email:string):Promise<UserEntity | null>{
+    async findByEmail(email:string) : Promise<UserEntity | null>{
         
         return this.findOne({
             where:{
@@ -77,6 +76,7 @@ export class UserRepository extends Repository<UserEntity>{
         });
 
     }
+    
     async findByDocument(document:string):Promise<UserEntity | null>{
 
         return this.findOne({

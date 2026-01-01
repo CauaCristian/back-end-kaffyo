@@ -1,6 +1,6 @@
 import { UserRole } from "../enum/User_Role";
 
-export interface JwtPayload{
+export interface AccessTokenPayload{
     sub:string;
     email:string;
     role:UserRole;
@@ -8,6 +8,4 @@ export interface JwtPayload{
         id:string;
         name:string;
     }
-    iat?: number;
-    exp?: number;
 }

@@ -1,9 +1,9 @@
 import { RequestHandler } from "express";
-import { cookieConfig } from "../configs/Cookie_Config";
+import { cookieHttpOnlyConfig } from "../configs/Cookie_Config";
 
 export class CookieService{
 
-    setCookie(content:string,cookieName:string) : RequestHandler {
+    setHttpOnlyCookie(content:string,cookieName:string) : RequestHandler {
         
         this.clearCookies(cookieName);
 
@@ -12,16 +12,36 @@ export class CookieService{
                 cookieName, 
                 content, 
                 {
-                    httpOnly: cookieConfig.httpOnly,
-                    secure: cookieConfig.secure,
-                    sameSite: cookieConfig.sameSite,
-                    maxAge: cookieConfig.maxAge
+                    httpOnly: cookieHttpOnlyConfig.httpOnly,
+                    secure: cookieHttpOnlyConfig.secure,
+                    sameSite: cookieHttpOnlyConfig.sameSite,
+                    maxAge: cookieHttpOnlyConfig.maxAge
                 }
             );
             next();
         };
 
     };
+
+    setNoHttpOnlyCookie(content:string,cookieName:string) : RequestHandler{
+
+        this.clearCookies(cookieName);
+
+        return (req, res, next) => {
+            res.cookie(
+                cookieName, 
+                content, 
+                {
+                    httpOnly: cookieHttpOnlyConfig.httpOnly,
+                    secure: cookieHttpOnlyConfig.secure,
+                    sameSite: cookieHttpOnlyConfig.sameSite,
+                    maxAge: cookieHttpOnlyConfig.maxAge
+                }
+            );
+            next();
+        };
+        
+    }
 
     getCookie(cookieName:string) : RequestHandler{
 
@@ -38,10 +58,10 @@ export class CookieService{
             res.clearCookie(
                 cookieName,
                 {
-                    httpOnly: cookieConfig.httpOnly,
-                    secure: cookieConfig.secure,
-                    sameSite: cookieConfig.sameSite,
-                    maxAge: cookieConfig.maxAge
+                    httpOnly: cookieHttpOnlyConfig.httpOnly,
+                    secure: cookieHttpOnlyConfig.secure,
+                    sameSite: cookieHttpOnlyConfig.sameSite,
+                    maxAge: cookieHttpOnlyConfig.maxAge
                 }
             );
             next();

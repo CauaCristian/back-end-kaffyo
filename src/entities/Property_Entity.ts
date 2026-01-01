@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { TenantEntity } from "./Tenant_Entity";
 import { LeadEntity } from "./Lead_Entity";
 import { PropertyTypeEntity } from "./system/Property_Type_Entity";
@@ -38,4 +38,10 @@ export class PropertyEntity{
     @Column({type:"enum",enum:PropertyStatus})
     propertyStatus!:PropertyStatus;
 
+    @CreateDateColumn({type:"timestamptz"})
+    createdAt!: Date;
+
+    @UpdateDateColumn({type:"timestamptz",nullable:true})
+    updatedAt!: Date;
+    
 }

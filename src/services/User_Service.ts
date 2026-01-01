@@ -8,6 +8,7 @@ import { UserCreateDTO } from "../dto/User_Create_DTO";
 import bcrypt from "bcryptjs";
 import { DocumentType } from "../enum/Document_Type";
 import { UserUpdateDTO } from "../dto/User_Update_DTO";
+import { hashConfig } from "../configs/Hash_config";
 
 export class UserService{
 
@@ -46,7 +47,7 @@ export class UserService{
         if(userCreateDTO.document.length == 14 && userCreateDTO.documentType === DocumentType.CPF) throw createHttpError(406,"Tipo de documento invalido");
         if(userCreateDTO.document.length == 11 && userCreateDTO.documentType === DocumentType.CNPJ) throw createHttpError(406,"Tipo de docuemnto invalido");
 
-        const hashPassword = await bcrypt.hash(userCreateDTO.password,Number.parseInt(process.env.PASSWORD_SALT || "10"));
+        const hashPassword = await bcrypt.hash(userCreateDTO.password,hashConfig.salt);
         userCreateDTO.password = hashPassword;
 
         return await this.userRepository.createUser(userCreateDTO);

@@ -28,9 +28,7 @@ export class TenantEntity{
     @CreateDateColumn({type:"timestamptz"})
     createdAt!: Date;
     
-    @UpdateDateColumn({type:"timestamptz"})
+    @UpdateDateColumn({type:"timestamptz",nullable:true})
     updatedAt!: Date;
 
-    @DeleteDateColumn({type:"timestamptz"})
-    deletedAt!:Date;
 }

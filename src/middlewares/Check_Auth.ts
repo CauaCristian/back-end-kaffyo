@@ -7,7 +7,9 @@ import { TokenService } from "../services/Token_Service";
 
 export const checkAuth: RequestHandler = async (req, res, next) => {
   try {
+
     const token = req.cookies?.token;
+    
     if (!token) {
       throw createHttpError(401, "Token não informado");
     }
@@ -18,9 +20,7 @@ export const checkAuth: RequestHandler = async (req, res, next) => {
       throw createHttpError(401, "Token inválido ou expirado");
     }
 
-    const userRepository = dataSource
-      .getRepository(UserEntity)
-      .extend(UserRepository.prototype);
+    const userRepository = dataSource.getRepository(UserEntity).extend(UserRepository.prototype);
 
     const user = await userRepository.findById(payload.sub);
 
@@ -30,7 +30,10 @@ export const checkAuth: RequestHandler = async (req, res, next) => {
 
     req.user = user;
     next();
+
   } catch (error) {
+
     next(error);
+
   }
 };

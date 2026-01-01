@@ -44,7 +44,7 @@ export class LeadEntity {
     @CreateDateColumn({type:"timestamptz"})
     createdAt!:Date;
 
-    @UpdateDateColumn({type:"timestamptz"})
+    @UpdateDateColumn({type:"timestamptz",nullable:true})
     updatedAt!:Date;
 
 }
