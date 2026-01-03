@@ -7,9 +7,7 @@ export const redisConfig = (()=>{
     const redisPort = process.env.REDIS_PORT;
     const redisPassword = process.env.REDIS_PASSWORD;
 
-    if(!redisHost || !redisPort || !redisPassword) {
-        throw createHttpError(500,"Configuração de cache inválida")
-    };
+    if(!redisHost || !redisPort || !redisPassword) throw createHttpError(500,"Configuração de cache inválida");
 
     return {
         host: redisHost,

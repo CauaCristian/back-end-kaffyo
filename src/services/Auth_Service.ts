@@ -9,15 +9,20 @@ import { AccessTokenPayload } from "../interfaces/Jwt_Payload";
 import { LoginResponse } from "../interfaces/Login_Response";
 import { RefreshTokenEntity } from "../entities/system/Refresh_Token_Entity";
 import { RefreshTokenRepository } from "../repositories/Refresh_Token_Repository";
-import { redis } from "../sources/Redis_Source";
+import { redisSource } from "../sources/Redis_Source";
+import { LogEntity } from "../entities/system/Log_Entity";
+import { LogRepository } from "../repositories/Log_Repository";
+import { LogType } from "../enum/Log_Type";
+import pino from "pino";
 
 export class AuthService{
 
     private userRepository = dataSource.getRepository(UserEntity).extend(UserRepository.prototype);
     private refreshTokenRepository = dataSource.getRepository(RefreshTokenEntity).extend(RefreshTokenRepository.prototype);
     private tokenService = new TokenService();
-    private redis = redis;
-
+    private redis = redisSource;
+    private logRespository = dataSource.getRepository(LogEntity).extend(LogRepository.prototype);
+    private logger = pino();
     async login (loginDTO:LoginDTO,userAgent:string,ipAddress:string) : Promise<LoginResponse>{
 
         const user = await this.userRepository.findByEmail(loginDTO.email);
@@ -30,8 +35,10 @@ export class AuthService{
 
         if (oldRefreshToken) {
             oldRefreshToken.revokedAt = new Date();
-            await this.refreshTokenRepository.save(oldRefreshToken);
-            await this.redis.del(`X-CSRF-Token:${user.id}:${oldRefreshToken.id}`);
+            await Promise.all([
+                this.refreshTokenRepository.save(oldRefreshToken),
+                this.redis.del(`X-CSRF-Token:${user.id}:${oldRefreshToken.id}`)
+            ]);
         }
 
         const payload: AccessTokenPayload = {
@@ -61,10 +68,23 @@ export class AuthService{
                 ),
             }
         );
+        const logEntity = this.logRespository.create({
+            ipAddress:ipAddress,
+            userAgent:userAgent,
+            user:user,
+            route:"/auth/login",
+            type:LogType.REFRESH_TOKEN_ISSUED,
+            statusCode:201,
+            message:"Refresh Token criado"
+        });
+        
+        await Promise.all([
+            this.refreshTokenRepository.save(refreshTokenEntity),
+            this.logRespository.save(logEntity),
+            this.redis.set(`x-csrf-token:${user.id}:${refreshTokenEntity.id}`, newCsrfToken, "EX", 60 * 15)
+        ]);
 
-        await this.refreshTokenRepository.save(refreshTokenEntity);
-
-        await this.redis.set(`X-CSRF-Token:${user.id}:${refreshTokenEntity.id}`, newCsrfToken, "EX", 60 * 15);
+        this.logger.info(`Login efetuado ip: ${ipAddress}`);
 
         return {
             accessToken: newAccessToken,
@@ -74,14 +94,14 @@ export class AuthService{
 
     }
 
-    async logout(userId:string,refreshToken:string,accessToken:string) : Promise<void> {
-        const refreshTokenEntity = await this.refreshTokenRepository.findByRefreshToken(refreshToken);
-        if(refreshTokenEntity && !refreshTokenEntity.revokedAt){
-            refreshTokenEntity.revokedAt =  new Date();
-            this.refreshTokenRepository.save(refreshTokenEntity);
-            await this.redis.del(`X-CSRF-Token:${userId}:${refreshTokenEntity.id}`);
-        };
-        await this.redis.set(`blacklist:accessToken:${accessToken}`,"true", "EX", 60 * 15);
+    async logout(userId:string,refreshTokenEntity:RefreshTokenEntity,accessToken:string,ipAddress:string) : Promise<void> {
+        refreshTokenEntity.revokedAt =  new Date();
+        await Promise.all([
+            this.refreshTokenRepository.save(refreshTokenEntity),
+            this.redis.del(`x-csrf-token:${userId}:${refreshTokenEntity.id}`),
+            this.redis.set(`blacklist:access-Token:${accessToken}`,"true", "EX", 60 * 15)
+        ]);
+        this.logger.info(`Logout efetuado ip: ${ipAddress}`);
     }
 
 }

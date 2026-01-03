@@ -7,9 +7,7 @@ export const sanitizeConfig = (()=>{
     const max_nodes = process.env.MAX_NODES;
     const body_limit = process.env.BODY_LIMIT;
 
-    if(!max_depth || !max_array_length || !max_nodes || !body_limit) {
-        throw createHttpError(500,"Configuração de sanitização invalida")
-    };
+    if(!max_depth || !max_array_length || !max_nodes || !body_limit) throw createHttpError(500,"Configuração de sanitização invalida");
 
     return {
         max_depth:Number.parseInt(max_depth),
