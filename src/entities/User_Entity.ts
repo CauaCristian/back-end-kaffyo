@@ -3,6 +3,7 @@ import { TenantEntity } from "./Tenant_Entity";
 import { LeadEntity } from "./Lead_Entity";
 import { UserRole } from "../enum/User_Role";
 import { DocumentType } from "../enum/Document_Type";
+import { RefreshTokenEntity } from "./system/Refresh_Token_Entity";
 
 @Entity()
 export class UserEntity{
@@ -15,6 +16,9 @@ export class UserEntity{
 
     @OneToMany(()=>LeadEntity,(leadEntity)=>leadEntity.broker,{nullable:true})
     leads!:LeadEntity[];
+
+    @OneToMany(()=>RefreshTokenEntity,(refreshTokenEntity)=>refreshTokenEntity.user)
+    refreshTokens!:RefreshTokenEntity[];
 
     @Column({type:"varchar",unique:true})
     email!:string;
@@ -36,12 +40,6 @@ export class UserEntity{
 
     @Column({type:"enum",enum:UserRole,nullable:true})
     role!:UserRole;
-
-    @Column({type:"varchar",nullable:true})
-    refreshToken!:string;
-
-    @Column({type:"timestamptz",nullable:true})
-    refreshTokenExpiresAt!:Date;
 
     @Column({ type: "json", nullable: true})
     settings!: Record<string, any>;

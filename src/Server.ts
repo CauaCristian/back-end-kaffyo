@@ -5,8 +5,9 @@ import {serverConfig} from "./configs/Server_Config"
 import cookieParser from "cookie-parser";
 import cors from "cors"
 import { corsConfig } from "./configs/Cors_Config";
-import express from "express";
+import express, { Router } from "express";
 import { sanitizeConfig } from "./configs/Sanitize_Config";
+import helmet from "helmet";
 
 async function initialize() {
 
@@ -15,8 +16,9 @@ async function initialize() {
         await dataSource.initialize();
         console.log("Banco de dados conectado!");
 
-        app.use(cors(corsConfig));
+        app.use(helmet());
         app.use(cookieParser());
+        app.use(cors(corsConfig));
         app.use(express.json({ limit: sanitizeConfig.body_limit }));
         
         app.listen(serverConfig.serverPort, () => {
@@ -26,7 +28,7 @@ async function initialize() {
     } catch (error) {
 
         console.error("Erro ao iniciar API:", error);
-        
+
     }
 
 }
