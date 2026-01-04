@@ -3,7 +3,7 @@ import { cookieHttpOnlyConfig } from "../configs/Cookie_Config";
 
 export class CookieService{
 
-    setHttpOnlyCookie(content:string,cookieName:string) : RequestHandler {
+    setHttpOnlyCookie(cookieName:string,content:string) : RequestHandler {
         
         this.clearCookies(cookieName);
 
@@ -22,6 +22,10 @@ export class CookieService{
         };
 
     };
+
+    getCookie(){
+        
+    }
 
     clearCookies(cookieName:string) : RequestHandler{
         

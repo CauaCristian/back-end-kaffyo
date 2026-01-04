@@ -9,31 +9,36 @@ import bcrypt from "bcryptjs";
 import { DocumentType } from "../enum/Document_Type";
 import { UserUpdateDTO } from "../dto/User_Update_DTO";
 import { hashConfig } from "../configs/Hash_config";
+import { LogType } from "../enum/Log_Type";
+import { LogService } from "./Log_Service";
 
 export class UserService{
 
     private userRepository = dataSource.getRepository(UserEntity).extend(UserRepository.prototype);
+    private logService = new LogService();
 
-    async findAll(page:number,limit:number,user:UserEntity):Promise<PaginatedResponse<UserEntity>>{
+    async findAll(page:string| undefined,limit:string| undefined,user:UserEntity):Promise<PaginatedResponse<UserEntity>>{
+        if(!page || !limit) throw createHttpError(400,"page e limit é Obrigatorio");
         if(user.role !== UserRole.ADMIN) throw createHttpError(403,"Usuário não autorizado a utilizar este recurso");
-        return await this.userRepository.findAll(page,limit);
+        return await this.userRepository.findAll(Number.parseInt(page),Number.parseInt(limit));
     }
-    async findAllByTenant(page:number,limit:number,tenantId:string,user:UserEntity):Promise<PaginatedResponse<UserEntity>>{
+    async findAllByTenant(page:string| undefined,limit:string| undefined,tenantId:string,user:UserEntity) : Promise<PaginatedResponse<UserEntity>>{
+
+        if(!page || !limit) throw createHttpError(400,"page e limit é Obrigatorio");
 
         const targetUser = await this.userRepository.findById(user.id);
 
         if (!targetUser) throw createHttpError(404, "Usuário não encontrado");
 
-        
         const effectiveTenantId =
             user.role === UserRole.ADMIN
             ? tenantId
             : user.tenant.id;
 
-        return await this.userRepository.findAllByTenant(page,limit,effectiveTenantId);
+        return await this.userRepository.findAllByTenant(Number.parseInt(page),Number.parseInt(limit),effectiveTenantId);
 
     }
-    async createUser(userCreateDTO:UserCreateDTO):Promise<UserEntity | null>{
+    async createUser(userCreateDTO:UserCreateDTO,ipAddress:string|undefined,userAgent:string|undefined):Promise<UserEntity | null>{
 
         const [emailExists, documentExists] = await Promise.all([
             this.userRepository.findByEmail(userCreateDTO.email),
@@ -49,45 +54,56 @@ export class UserService{
 
         const hashPassword = await bcrypt.hash(userCreateDTO.password,hashConfig.salt);
         userCreateDTO.password = hashPassword;
-
-        return await this.userRepository.createUser(userCreateDTO);
+        const user = await this.userRepository.createUser(userCreateDTO);
+        if(!user) throw createHttpError(400,"Erro ao criar usuário");
+        await this.logService.actionLog(ipAddress,userAgent,user,LogType.CREATE_ENTITY,"Usuário criado",201);
+        return user;
 
     }
-    async updateUser(userUpdateDTO:UserUpdateDTO,user:UserEntity):Promise<UserEntity | null>{
+    async updateUser(userUpdateDTO:UserUpdateDTO,user:UserEntity,ipAddress:string|undefined,userAgent:string|undefined):Promise<UserEntity | null>{
 
-        if(user.id !== userUpdateDTO.id && !(user.role === UserRole.ADMIN)) throw createHttpError(403,"Usuário não tem permissão de alterar os dados de outro usuário");
+        if(user.id !== userUpdateDTO.id && !(user.role === UserRole.ADMIN)) {
+            await this.logService.actionLog(ipAddress,userAgent,user,LogType.ROLE_VIOLATION,"Usuário não tem permissão de alterar os dados de outro usuário",403);
+            throw createHttpError(403,"Usuário não tem permissão de alterar os dados de outro usuário");
+        };
+        await this.logService.actionLog(ipAddress,userAgent,user,LogType.UPDATE_ENTITY,"Usuário editado",200);
         return await this.userRepository.updateUser(userUpdateDTO);
 
     }
-    async updateByTenant(userUpdateDTO: UserUpdateDTO,tenantId:string,user: UserEntity) : Promise<UserEntity | null>{
+    async updateByTenant(userUpdateDTO: UserUpdateDTO,tenantId:string,user: UserEntity,ipAddress:string|undefined,userAgent:string|undefined) : Promise<UserEntity | null>{
+
         const targetUser = await this.userRepository.findById(userUpdateDTO.id);
 
         if (!targetUser) throw createHttpError(404, "Usuário não encontrado");
         
+        const canUpdate = user.id === targetUser.id ||user.role === UserRole.ADMIN ||(user.role === UserRole.OWNER && user.tenant.id === targetUser.tenant.id);
 
-        const canUpdate =
-            user.id === targetUser.id ||
-            user.role === UserRole.ADMIN ||
-            (user.role === UserRole.OWNER &&
-            user.tenant.id === targetUser.tenant.id);
-
-        if (!canUpdate) throw createHttpError(403, "Usuário não tem permissão de alterar os dados de outro usuário");
-
+        if (!canUpdate) {
+            await this.logService.actionLog(ipAddress,userAgent,user,LogType.ROLE_VIOLATION,"Usuário não tem permissão de alterar os dados de outro usuário",403);
+            throw createHttpError(403, "Usuário não tem permissão de alterar os dados de outro usuário");
+        };
 
         const effectiveTenantId =
             user.role === UserRole.ADMIN
             ? tenantId
             : user.tenant.id;
-
+        await this.logService.actionLog(ipAddress,userAgent,user,LogType.UPDATE_ENTITY,"Usuário editado",200);
         return await this.userRepository.updateUserByTenant(userUpdateDTO, effectiveTenantId);
 
     }
 
-    async deleteByTenant(user:UserEntity,userId:string,tenantId:string) : Promise<UserEntity | null> {
+    async deleteByTenant(user:UserEntity,userId:string,tenantId:string,ipAddress:string|undefined,userAgent:string|undefined) : Promise<UserEntity | null> {
 
         const targetUser = await this.userRepository.findById(user.id);
 
         if(!targetUser) throw createHttpError(403,"Usuário não encontrado");
+
+        const canDelete = user.id === targetUser.id ||user.role === UserRole.ADMIN ||(user.role === UserRole.OWNER && user.tenant.id === targetUser.tenant.id);
+        
+        if (!canDelete) {
+            await this.logService.actionLog(ipAddress,userAgent,user,LogType.ROLE_VIOLATION,"Usuário não tem permissão de excluir outro usuário",403);
+            throw createHttpError(403, "Usuário não tem permissão de excluir outro usuário");
+        };
 
         const effectiveTenantId =
             user.role === UserRole.ADMIN
@@ -98,7 +114,7 @@ export class UserService{
             user.role === UserRole.ADMIN
             ? userId
             : user.tenant.id;
-
+        await this.logService.actionLog(ipAddress,userAgent,user,LogType.DELETE_ENTITY,"Usuário deletado",200);
         return await this.userRepository.deleteUserByTenant(effectiveUserId,effectiveTenantId);
 
     }

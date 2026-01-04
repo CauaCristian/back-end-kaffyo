@@ -12,7 +12,7 @@ export class RefreshTokenRepository extends Repository<RefreshTokenEntity>{
         });
     }
 
-    async findByUserIdAndUserAgent(userId:string,userAgent:string){
+    async findByUserIdAndUserAgent(userId:string,userAgent:string|undefined){
         return await this.findOne({
             where:{
                 user:{

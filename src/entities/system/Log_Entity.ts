@@ -20,13 +20,13 @@ export class LogEntity{
     @Column({type:"varchar",nullable:true})
     route!:string;
 
-    @Column({type:"int"})
+    @Column({type:"int",nullable:true})
     statusCode!:number;
 
     @Column({type:"enum",enum:LogType})
     type!:LogType;
 
-    @Column({type:"varchar",nullable:true},)
+    @Column({type:"varchar"})
     message!:string;
 
     @CreateDateColumn({type:"timestamptz"})

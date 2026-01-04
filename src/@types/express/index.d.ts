@@ -4,11 +4,12 @@ import { UserEntity } from "../../entities/User_Entity";
 declare global{
     namespace Express{
         interface Request{
-            refreshToken?:RefreshTokenEntity,
-            accessToken?:string;
-            csrfToken?:string;
-            user?:UserEntity;
-            cookieValue?:string;
+            refreshToken:RefreshTokenEntity,
+            accessToken:string;
+            csrfToken:string;
+            user:UserEntity;
+            page:number;
+            limit:number;
         }
     }
 }
