@@ -1,5 +1,5 @@
 import * as jwt from "jsonwebtoken";
-import { AccessTokenPayload } from "../interfaces/Jwt_Payload";
+import { AccessTokenPayload } from "../interfaces/Access_Token_Payload";
 import { jwtConfig } from "../configs/Jwt_Config";
 import createHttpError from "http-errors";
 import crypto from "crypto";

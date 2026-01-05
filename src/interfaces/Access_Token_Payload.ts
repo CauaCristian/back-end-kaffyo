@@ -8,4 +8,7 @@ export interface AccessTokenPayload{
         id:string;
         name:string;
     }
+    session: {
+        refreshTokenId: string;
+    };
 }

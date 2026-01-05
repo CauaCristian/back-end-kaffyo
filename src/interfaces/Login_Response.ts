@@ -1,5 +1,5 @@
 export interface LoginResponse{
-    accessToken:string,
-    refreshToken:string,
-    csrfToken:string
+    accessToken:string;
+    refreshToken:string;
+    csrfToken:string;
 }

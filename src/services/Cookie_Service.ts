@@ -23,10 +23,6 @@ export class CookieService{
 
     };
 
-    getCookie(){
-        
-    }
-
     clearCookies(cookieName:string) : RequestHandler{
         
         return (req,res,next) => {

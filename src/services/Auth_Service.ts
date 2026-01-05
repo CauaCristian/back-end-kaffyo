@@ -5,7 +5,7 @@ import { UserRepository } from "../repositories/User_Repository";
 import { dataSource } from "../sources/Data_Source";
 import * as bcrypt from "bcryptjs";
 import { TokenService } from "./Token_Service";
-import { AccessTokenPayload } from "../interfaces/Jwt_Payload";
+import { AccessTokenPayload } from "../interfaces/Access_Token_Payload";
 import { LoginResponse } from "../interfaces/Login_Response";
 import { RefreshTokenEntity } from "../entities/system/Refresh_Token_Entity";
 import { RefreshTokenRepository } from "../repositories/Refresh_Token_Repository";
@@ -14,6 +14,7 @@ import { LogType } from "../enum/Log_Type";
 import pino from "pino";
 import { LogService } from "./Log_Service";
 import { RefreshResponse } from "../interfaces/Refresh_Response";
+
 
 export class AuthService{
 
@@ -28,13 +29,12 @@ export class AuthService{
 
         const user = await this.userRepository.findByEmail(loginDTO.email);
         if (!user) {
-            await this.logService.actionLog(ipAddress,userAgent,undefined,LogType.ACCESS_DENIED,"Email incorreto",401);
             throw createHttpError(401, "Email incorreto");
         };
 
         const isCorrectPassword = await bcrypt.compare(loginDTO.password,user.password);
+
         if (!isCorrectPassword) {
-            await this.logService.actionLog(ipAddress,userAgent,undefined,LogType.ACCESS_DENIED,"Senha incorreta",401);
             throw createHttpError(401, "Senha incorreta");
         };
 
@@ -44,22 +44,10 @@ export class AuthService{
             oldRefreshToken.revokedAt = new Date();
             await Promise.all([
                 this.refreshTokenRepository.save(oldRefreshToken),
-                this.redis.del(`X-CSRF-Token:${user.id}:${oldRefreshToken.id}`)
+                this.redis.del(`x-csrf-token:${user.id}:${oldRefreshToken.id}`)
             ]);
-            await this.logService.actionLog(ipAddress,userAgent,user,LogType.REFRESH_TOKEN_REVOKED,"Refresh-Token revogado",200);
+            await this.logService.actionLog(ipAddress,userAgent,user.id,LogType.REFRESH_TOKEN_REVOKED,"Refresh-Token revogado",200);
         }
-
-        const payload: AccessTokenPayload = {
-            sub: user.id,
-            email: user.email,
-            role: user.role,
-            tenant: {
-                id: user.tenant.id,
-                name: user.tenant.name,
-            },
-        };
-
-        const newAccessToken = this.tokenService.generateAccessToken(payload);
 
         const newRefreshToken = this.tokenService.generateRefreshToken();
 
@@ -77,10 +65,25 @@ export class AuthService{
             }
         );
 
+        const payload: AccessTokenPayload = {
+            sub: user.id,
+            email: user.email,
+            role: user.role,
+            tenant: {
+                id: user.tenant.id,
+                name: user.tenant.name,
+            },
+            session:{
+                refreshTokenId:refreshTokenEntity.id
+            }
+        };
+
+        const newAccessToken = this.tokenService.generateAccessToken(payload);
+
         await Promise.all([
-            this.logService.actionLog(ipAddress,userAgent,user,LogType.ACCESS_GRANTED,"Login efetuado",200),
-            this.logService.actionLog(ipAddress,userAgent,user,LogType.REFRESH_TOKEN_ISSUED,"Refresh-Token criado",201),
-            this.logService.actionLog(ipAddress,userAgent,user,LogType.CSRF_TOKEN_CREATED,"X-CSRF-Token criado",201),
+            this.logService.actionLog(ipAddress,userAgent,payload.sub,LogType.ACCESS_GRANTED,"Login efetuado",200),
+            this.logService.actionLog(ipAddress,userAgent,payload.sub,LogType.REFRESH_TOKEN_ISSUED,"Refresh-Token criado",201),
+            this.logService.actionLog(ipAddress,userAgent,payload.sub,LogType.CSRF_TOKEN_CREATED,"X-CSRF-Token criado",201),
             this.refreshTokenRepository.save(refreshTokenEntity),
             this.redis.set(`x-csrf-token:${user.id}:${refreshTokenEntity.id}`, newCsrfToken, "EX", 60 * 15)
         ]);
@@ -95,30 +98,33 @@ export class AuthService{
 
     };
 
-    async refresh(userAgent:string | undefined,ipAddress:string | undefined,user:UserEntity): Promise<RefreshResponse>{
+    async refresh(userAgent:string | undefined,ipAddress:string | undefined,refreshTokenHash:string): Promise<RefreshResponse>{
 
-        const oldRefreshToken =await this.refreshTokenRepository.findByUserIdAndUserAgent(user.id,userAgent);
+        const oldRefreshToken = await this.refreshTokenRepository.findByRefreshToken(refreshTokenHash);
 
-        if (oldRefreshToken) {
-            oldRefreshToken.revokedAt = new Date();
-            await Promise.all([
-                this.refreshTokenRepository.save(oldRefreshToken),
-                this.redis.del(`X-CSRF-Token:${user.id}:${oldRefreshToken.id}`)
-            ]);
-            await this.logService.actionLog(ipAddress,userAgent,user,LogType.REFRESH_TOKEN_REVOKED,"Refresh-Token revogado",200);
+        if(!oldRefreshToken){
+            throw createHttpError(401,"Refresh-Token informado é inválido");
         }
 
-        const payload: AccessTokenPayload = {
-            sub: user.id,
-            email: user.email,
-            role: user.role,
-            tenant: {
-                id: user.tenant.id,
-                name: user.tenant.name,
-            },
-        };
+        if(oldRefreshToken.revokedAt){
+            await this.refreshTokenRepository.revokeAllByUser(oldRefreshToken.user.id);
+            await this.logService.actionLog(ipAddress,userAgent,oldRefreshToken.user.id,LogType.REFRESH_TOKEN_REVOKED,"Refresh-Token informado já foi revogado",401);
+            throw createHttpError(401,"Refresh-Token informado é inválido");
+        }
+        if (oldRefreshToken.refreshTokenExpiresAt < new Date()) {
+            await this.logService.actionLog(ipAddress,userAgent,oldRefreshToken.user.id,LogType.REFRESH_TOKEN_INVALID,"Refresh-Token informado está expirado",401);
+            throw createHttpError(401, "Refresh-Token expirado");
+        }
+        
 
-        const newAccessToken = this.tokenService.generateAccessToken(payload);
+        oldRefreshToken.revokedAt = new Date();
+
+        await Promise.all([
+            this.refreshTokenRepository.save(oldRefreshToken),
+            this.redis.del(`x-csrf-token:${oldRefreshToken.user.id}:${oldRefreshToken.id}`)
+        ]);
+
+        await this.logService.actionLog(ipAddress,userAgent,oldRefreshToken.id,LogType.REFRESH_TOKEN_REVOKED,"Refresh-Token revogado",200);
 
         const newRefreshToken = this.tokenService.generateRefreshToken();
 
@@ -126,7 +132,7 @@ export class AuthService{
 
         const refreshTokenEntity =this.refreshTokenRepository.create(
             {
-                user,
+                user:oldRefreshToken.user,
                 userAgent,
                 ipAddress,
                 refreshToken: newRefreshToken,
@@ -135,12 +141,27 @@ export class AuthService{
                 ),
             }
         );
+        await this.refreshTokenRepository.save(refreshTokenEntity);
+
+        const payload: AccessTokenPayload = {
+            sub: oldRefreshToken.user.id,
+            email: oldRefreshToken.user.email,
+            role: oldRefreshToken.user.role,
+            tenant: {
+                id: oldRefreshToken.user.tenant.id,
+                name: oldRefreshToken.user.tenant.name,
+            },
+            session:{
+                refreshTokenId:refreshTokenEntity.id
+            }
+        };
+
+        const newAccessToken = this.tokenService.generateAccessToken(payload);
 
         await Promise.all([
-            this.logService.actionLog(ipAddress,userAgent,user,LogType.REFRESH_TOKEN_ISSUED,"Refresh-Token criado",201),
-            this.logService.actionLog(ipAddress,userAgent,user,LogType.CSRF_TOKEN_CREATED,"X-CSRF-Token criado",201),
-            this.refreshTokenRepository.save(refreshTokenEntity),
-            this.redis.set(`x-csrf-token:${user.id}:${refreshTokenEntity.id}`, newCsrfToken, "EX", 60 * 15)
+            this.logService.actionLog(ipAddress,userAgent,refreshTokenEntity.user.id,LogType.REFRESH_TOKEN_ISSUED,"Refresh-Token criado",201),
+            this.logService.actionLog(ipAddress,userAgent,refreshTokenEntity.user.id,LogType.CSRF_TOKEN_CREATED,"X-CSRF-Token criado",201),
+            this.redis.set(`x-csrf-token:${refreshTokenEntity.user.id}:${refreshTokenEntity.id}`, newCsrfToken, "EX", 60 * 15)
         ]);
 
         return {
@@ -151,16 +172,16 @@ export class AuthService{
 
     }
 
-    async logout(accessToken:string,ipAddress:string | undefined,userAgent:string | undefined,user:UserEntity,refreshTokenEntity:RefreshTokenEntity) : Promise<void> {
+    async logout(accessToken:string,ipAddress:string | undefined,userAgent:string | undefined,user:AccessTokenPayload,refreshTokenEntity:RefreshTokenEntity) : Promise<void> {
         refreshTokenEntity.revokedAt =  new Date();
         await Promise.all([
             this.refreshTokenRepository.save(refreshTokenEntity),
-            this.redis.del(`x-csrf-token:${user.id}:${refreshTokenEntity.id}`),
+            this.redis.del(`x-csrf-token:${user.sub}:${refreshTokenEntity.id}`),
             this.redis.set(`blacklist:access-Token:${accessToken}`,"true", "EX", 60 * 15)
         ]);
-        await this.logService.actionLog(ipAddress,userAgent,user,LogType.REFRESH_TOKEN_REVOKED,"Refresh-Token revogado",200),
-        await this.logService.actionLog(ipAddress,userAgent,user,LogType.TOKEN_BLACKLISTED,"Access-Token em lista negra",200),
-        await this.logService.actionLog(ipAddress,userAgent,user,LogType.CSRF_TOKEN_INVALIDED,"x-csrf-token deletado do cache",200),
+        await this.logService.actionLog(ipAddress,userAgent,user.sub,LogType.REFRESH_TOKEN_REVOKED,"Refresh-Token revogado",200),
+        await this.logService.actionLog(ipAddress,userAgent,user.sub,LogType.TOKEN_BLACKLISTED,"Access-Token em lista negra",200),
+        await this.logService.actionLog(ipAddress,userAgent,user.sub,LogType.CSRF_TOKEN_INVALIDED,"x-csrf-token deletado do cache",200),
         this.logger.info(`Logout efetuado ip: ${ipAddress}`);
     };
 

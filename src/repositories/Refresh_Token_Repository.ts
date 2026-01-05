@@ -25,7 +25,7 @@ export class RefreshTokenRepository extends Repository<RefreshTokenEntity>{
     }
 
     async findAllActiveByUserId(userId:string){
-        return await this.findOne({
+        return await this.find({
             where:{
                 user:{
                     id:userId
@@ -33,6 +33,12 @@ export class RefreshTokenRepository extends Repository<RefreshTokenEntity>{
                 revokedAt:IsNull()
             }
         })
+    }
+    async revokeAllByUser(userId:string){
+        const sessions = await this.findAllActiveByUserId(userId);
+        for(var i = 0;i < sessions.length; i++){
+            sessions[i].revokedAt = new Date();
+        }
     }
     
 }
