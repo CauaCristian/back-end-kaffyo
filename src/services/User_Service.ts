@@ -1,8 +1,7 @@
 import { UserEntity } from "../entities/User_Entity";
 import { UserRole } from "../enum/User_Role";
 import { PaginatedResponse } from "../interfaces/Paginated_Response";
-import { UserRepository } from "../repositories/User_Repository";
-import { dataSource } from "../sources/Data_Source";
+import { userRepository } from "../repositories/User_Repository";
 import createHttpError from "http-errors";
 import { UserCreateDTO } from "../dto/User_Create_DTO";
 import bcrypt from "bcryptjs";
@@ -16,7 +15,7 @@ import { UserResponse } from "../interfaces/User_Response";
 
 export class UserService{
 
-    private userRepository = dataSource.getRepository(UserEntity).extend(UserRepository.prototype);
+    private userRepository = userRepository;
     private logService = new LogService();
 
     async findAll(page:string| undefined,limit:string| undefined,user:AccessTokenPayload):Promise<PaginatedResponse<UserEntity>>{
@@ -41,20 +40,20 @@ export class UserService{
 
     }
     async createUser(userCreateDTO:UserCreateDTO,ipAddress:string|undefined,userAgent:string|undefined):Promise<UserResponse>{
-
+        
         const [emailExists, documentExists] = await Promise.all([
             this.userRepository.findByEmail(userCreateDTO.email),
             this.userRepository.findByDocument(userCreateDTO.document),
         ]);
 
-        if(!emailExists) throw createHttpError(409,"Usuário com este e-mail já cadastrado na base de dados");
-        if(!documentExists) throw createHttpError(409,`Usuário com este ${userCreateDTO.documentType} já cadastrado na base de dados`);
+        if(emailExists) throw createHttpError(409,"Usuário com este e-mail já cadastrado na base de dados");
+        if(documentExists) throw createHttpError(409,`Usuário com este ${userCreateDTO.documentType} já cadastrado na base de dados`);
 
         userCreateDTO.document = userCreateDTO.document.replace(/\D/g, "");
         if(userCreateDTO.document.length == 14 && userCreateDTO.documentType === DocumentType.CPF) throw createHttpError(406,"Tipo de documento invalido");
         if(userCreateDTO.document.length == 11 && userCreateDTO.documentType === DocumentType.CNPJ) throw createHttpError(406,"Tipo de docuemnto invalido");
 
-        const hashPassword = await bcrypt.hash(userCreateDTO.password,hashConfig.salt);
+        const hashPassword = await bcrypt.hash(userCreateDTO.password,await bcrypt.genSalt(parseInt(hashConfig.salt)));
         userCreateDTO.password = hashPassword;
         const user = await this.userRepository.createUser(userCreateDTO);
         if(!user) throw createHttpError(400,"Erro ao criar usuário");

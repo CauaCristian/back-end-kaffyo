@@ -22,7 +22,7 @@ export class UserController{
     }
     createUser:RequestHandler = async (req,res,next)=>{
         try{
-            const response = await this.userService.createUser(req.body,req.ip,req.get("user-agent"));
+            const response = await this.userService.createUser(req.body,req.ip?.replace("::ffff:",""),req.get("user-agent"));
             res.status(201).send(response);
         } catch(error){
             next(error);
@@ -30,7 +30,7 @@ export class UserController{
     }
     updateUser:RequestHandler = async (req,res,next)=>{
         try{
-            const response = await this.userService.updateUser(req.body,req.user,req.ip,req.get("user-agent"));
+            const response = await this.userService.updateUser(req.body,req.user,req.ip?.replace("::ffff:",""),req.get("user-agent"));
             res.status(201).send(response);
         } catch(error){
             next(error);
@@ -38,7 +38,7 @@ export class UserController{
     }
     updateByTenant:RequestHandler = async (req,res,next)=>{
         try{
-            const response = await this.userService.updateByTenant(req.body,req.params.tenantId,req.user,req.ip,req.get("user-agent"));
+            const response = await this.userService.updateByTenant(req.body,req.params.tenantId,req.user,req.ip?.replace("::ffff:",""),req.get("user-agent"));
             res.status(201).send(response);
         } catch(error){
             next(error);
@@ -46,7 +46,7 @@ export class UserController{
     }
     deleteByTenant:RequestHandler = async (req,res,next)=>{
         try{
-            const response = await this.userService.deleteByTenant(req.user,req.params.userId,req.params.tenantId,req.ip,req.get("user-agent"));
+            const response = await this.userService.deleteByTenant(req.user,req.params.userId,req.params.tenantId,req.ip?.replace("::ffff:",""),req.get("user-agent"));
             res.status(201).send(response);
         } catch(error){
             next(error);

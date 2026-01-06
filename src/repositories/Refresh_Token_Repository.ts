@@ -1,8 +1,8 @@
 import { IsNull, Repository } from "typeorm";
 import { RefreshTokenEntity } from "../entities/system/Refresh_Token_Entity";
+import { dataSource } from "../sources/Data_Source";
 
-export class RefreshTokenRepository extends Repository<RefreshTokenEntity>{
-
+export const refreshTokenRepository = dataSource.getRepository(RefreshTokenEntity).extend({
     async findByRefreshToken(refreshToken:string):Promise<RefreshTokenEntity|null>{
         return await this.findOne({
             where:{
@@ -10,7 +10,7 @@ export class RefreshTokenRepository extends Repository<RefreshTokenEntity>{
             },
             relations: ["user"]
         });
-    }
+    },
 
     async findByUserIdAndUserAgent(userId:string,userAgent:string|undefined){
         return await this.findOne({
@@ -22,7 +22,7 @@ export class RefreshTokenRepository extends Repository<RefreshTokenEntity>{
             },
             relations: ["user"]
         });
-    }
+    },
 
     async findAllActiveByUserId(userId:string){
         return await this.find({
@@ -33,12 +33,11 @@ export class RefreshTokenRepository extends Repository<RefreshTokenEntity>{
                 revokedAt:IsNull()
             }
         })
-    }
+    },
     async revokeAllByUser(userId:string){
         const sessions = await this.findAllActiveByUserId(userId);
         for(var i = 0;i < sessions.length; i++){
             sessions[i].revokedAt = new Date();
         }
-    }
-    
-}
+    },
+});

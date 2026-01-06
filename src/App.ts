@@ -1,14 +1,11 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import { corsConfig } from "./configs/Cors_Config";
 import { sanitizeConfig } from "./configs/Sanitize_Config";
 import authRouter from "./routes/Auth_Router";
 import { sanitizeHTML } from "./middlewares/Sanitize_Html";
-
-dotenv.config();
 
 const app = express();
 

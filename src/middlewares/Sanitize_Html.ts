@@ -54,10 +54,18 @@ function deepSanitize(value: any,depth = 0,nodeCounter = { count:0 }): any {
 export const sanitizeHTML:RequestHandler = (req,res,next)=>{
 
     try {
+        
+        if (req.body) {
+            Object.assign(req.body, deepSanitize(req.body));
+        }
 
-        req.body = deepSanitize(req.body);
-        req.query = deepSanitize(req.query);
-        req.params = deepSanitize(req.params);
+        if (req.query) {
+            Object.assign(req.query, deepSanitize(req.query));
+        }
+
+        if (req.params) {
+            Object.assign(req.params, deepSanitize(req.params));
+        }
         next();
 
     } 

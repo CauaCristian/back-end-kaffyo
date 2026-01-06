@@ -11,7 +11,7 @@ export class AuthController{
 
     login:RequestHandler = async (req,res,next) =>{
         try{
-            const loginResponse = await this.authService.login(req.body,req.get("user-agent"),req.ip);
+            const loginResponse = await this.authService.login(req.body,req.get("user-agent"),req.ip?.replace("::ffff:",""));
             this.cookieService.setHttpOnlyCookie("refresh-token",loginResponse.refreshToken);
             res.setHeader("X-Access-Token",loginResponse.accessToken);
             res.setHeader("X-CSRF-Token",loginResponse.csrfToken);
@@ -24,7 +24,7 @@ export class AuthController{
 
     register:RequestHandler = async (req,res,next) =>{
         try{
-            const userResponse = this.userService.createUser(req.body,req.ip,req.get("user-agent"));
+            const userResponse = await this.userService.createUser(req.body,req.ip?.replace("::ffff:",""),req.get("user-agent"));
             res.status(201).send(userResponse);
         } 
         catch(error){
@@ -34,7 +34,7 @@ export class AuthController{
 
     refresh:RequestHandler = async (req,res,next) =>{
         try{
-            const refreshResponse = await this.authService.refresh(req.get("user-agent"),req.ip,req.cookies("refresh-token"));
+            const refreshResponse = await this.authService.refresh(req.get("user-agent"),req.ip?.replace("::ffff:",""),req.cookies("refresh-token"));
             this.cookieService.setHttpOnlyCookie("refresh-token",refreshResponse.refreshToken);
             res.setHeader("X-Access-Token",refreshResponse.accessToken);
             res.setHeader("X-CSRF-Token",refreshResponse.csrfToken);
@@ -47,7 +47,7 @@ export class AuthController{
 
     logout:RequestHandler = async (req,res,next)=>{
         try{
-            this.authService.logout(req.accessToken,req.ip,req.get("user-agent"),req.user,req.cookies["refresh-token"]);
+            await this.authService.logout(req.accessToken,req.ip?.replace("::ffff:",""),req.get("user-agent"),req.user,req.cookies["refresh-token"]);
             res.sendStatus(200);
         }
         catch(error) {

@@ -1,9 +1,8 @@
-import { Repository } from "typeorm";
 import { UserEntity } from "../entities/User_Entity";
 import { PaginatedResponse } from "../interfaces/Paginated_Response";
+import { dataSource } from "../sources/Data_Source";
 
-export class UserRepository extends Repository<UserEntity>{
-    
+export const userRepository = dataSource.getRepository(UserEntity).extend({
     async findAll(page:number,limit:number):Promise<PaginatedResponse<UserEntity>>{
 
         const result = await this.findAndCount({
@@ -19,7 +18,7 @@ export class UserRepository extends Repository<UserEntity>{
             }
         };
 
-    }
+    },
 
     async findAllByTenant(page:number,limit:number,tenantId:string):Promise<PaginatedResponse<UserEntity>>{
         
@@ -42,7 +41,7 @@ export class UserRepository extends Repository<UserEntity>{
             }
         };
 
-    }
+    },
 
     async findByIdAndTenant(userId:string,tenantId:string):Promise<UserEntity | null>{
         
@@ -55,7 +54,7 @@ export class UserRepository extends Repository<UserEntity>{
             }
         });
 
-    }
+    },
 
     async findById(userId:string):Promise<UserEntity | null>{
         
@@ -65,34 +64,34 @@ export class UserRepository extends Repository<UserEntity>{
             }
         });
 
-    }
+    },
 
     async findByEmail(email:string) : Promise<UserEntity | null>{
         
-        return this.findOne({
+        return await this.findOne({
             where:{
                 email:email
             }
         });
 
-    }
+    },
     
     async findByDocument(document:string):Promise<UserEntity | null>{
 
-        return this.findOne({
+        return await this.findOne({
             where:{
                 document:document
             }
         });
         
-    }
+    },
 
     async createUser(data: Partial<UserEntity>): Promise<UserEntity | null> {
         
-        await this.insert(data);
-        return await this.findOneBy({ email: data.email });
+        const user = this.create(data);
+        return await this.save(user);
 
-    }
+    },
 
     async updateUser(data:Partial<UserEntity>):Promise<UserEntity | null>{
 
@@ -107,7 +106,7 @@ export class UserRepository extends Repository<UserEntity>{
         Object.assign(user,data);
         return await this.save(user);
 
-    }
+    },
 
     async updateUserByTenant(data:Partial<UserEntity>,tenantId:string):Promise<UserEntity | null>{
 
@@ -125,7 +124,7 @@ export class UserRepository extends Repository<UserEntity>{
         Object.assign(user,data);
         return await this.save(user);
 
-    }
+    },
 
     async deleteUserByTenant(userId:string,tenantId:string):Promise<UserEntity | null>{
         
@@ -140,8 +139,7 @@ export class UserRepository extends Repository<UserEntity>{
         if(!user){
             return null;
         }
-        return this.remove(user);
+        return await this.remove(user);
 
     }
-    
-}
+});

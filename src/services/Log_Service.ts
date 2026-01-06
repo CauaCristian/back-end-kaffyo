@@ -1,15 +1,12 @@
 import pino from "pino";
-import { LogEntity } from "../entities/system/Log_Entity";
 import { LogType } from "../enum/Log_Type";
-import { LogRepository } from "../repositories/Log_Repository";
-import { dataSource } from "../sources/Data_Source";
-import { UserEntity } from "../entities/User_Entity";
-import { UserRepository } from "../repositories/User_Repository";
+import { userRepository } from "../repositories/User_Repository";
+import { logRepository } from "../repositories/Log_Repository";
 
 export class LogService{
-    private logRepository = dataSource.getRepository(LogEntity).extend(LogRepository.prototype);
+    private logRepository = logRepository;
     private logger = pino();
-    private userRepository = dataSource.getRepository(UserEntity).extend(UserRepository.prototype);
+    private userRepository = userRepository;
 
     async routeLog(logType:LogType,message:string,route:string){
 

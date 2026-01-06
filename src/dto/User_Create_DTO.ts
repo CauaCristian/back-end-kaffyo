@@ -4,9 +4,6 @@ import { DocumentIsValid } from "../decorators/Document_Is_Valid";
 
 export class UserCreateDTO{ 
 
-    @IsUUID()
-    id!:string;
-
     @IsString() 
     @MaxLength(50) 
     name!:string;

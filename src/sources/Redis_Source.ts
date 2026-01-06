@@ -1,10 +1,11 @@
-import Redis from "ioredis";
+import { createClient } from "redis";
 import { redisConfig } from "../configs/Redis_Config";
 
-export const redisSource = new Redis({
-    host: redisConfig.host,
-    port: redisConfig.port,
+export const redisSource = createClient({
+    username:redisConfig.username,
     password: redisConfig.password,
-    maxRetriesPerRequest: 5,
-    enableReadyCheck: true,
+    socket:{
+        port:redisConfig.port,
+        host:redisConfig.host
+    }
 });

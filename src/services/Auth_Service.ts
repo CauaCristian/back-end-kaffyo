@@ -1,25 +1,23 @@
 import createHttpError from "http-errors";
 import { LoginDTO } from "../dto/Login_DTO";
-import { UserEntity } from "../entities/User_Entity";
-import { UserRepository } from "../repositories/User_Repository";
+import { userRepository } from "../repositories/User_Repository";
 import { dataSource } from "../sources/Data_Source";
 import * as bcrypt from "bcryptjs";
 import { TokenService } from "./Token_Service";
 import { AccessTokenPayload } from "../interfaces/Access_Token_Payload";
 import { LoginResponse } from "../interfaces/Login_Response";
 import { RefreshTokenEntity } from "../entities/system/Refresh_Token_Entity";
-import { RefreshTokenRepository } from "../repositories/Refresh_Token_Repository";
+import { refreshTokenRepository } from "../repositories/Refresh_Token_Repository";
 import { redisSource } from "../sources/Redis_Source";
 import { LogType } from "../enum/Log_Type";
 import pino from "pino";
 import { LogService } from "./Log_Service";
 import { RefreshResponse } from "../interfaces/Refresh_Response";
 
-
 export class AuthService{
 
-    private userRepository = dataSource.getRepository(UserEntity).extend(UserRepository.prototype);
-    private refreshTokenRepository = dataSource.getRepository(RefreshTokenEntity).extend(RefreshTokenRepository.prototype);
+    private userRepository = userRepository;
+    private refreshTokenRepository = refreshTokenRepository;
     private tokenService = new TokenService();
     private redis = redisSource;
     private logger = pino();
@@ -28,6 +26,7 @@ export class AuthService{
     async login (loginDTO:LoginDTO,userAgent:string | undefined,ipAddress:string | undefined) : Promise<LoginResponse>{
 
         const user = await this.userRepository.findByEmail(loginDTO.email);
+
         if (!user) {
             throw createHttpError(401, "Email incorreto");
         };
@@ -53,7 +52,7 @@ export class AuthService{
 
         const newCsrfToken = this.tokenService.generateCsrfToken();
 
-        const refreshTokenEntity =this.refreshTokenRepository.create(
+        const refreshTokenEntity = this.refreshTokenRepository.create(
             {
                 user,
                 userAgent,
@@ -65,6 +64,8 @@ export class AuthService{
             }
         );
 
+        const newRefreshTokenEntity = await this.refreshTokenRepository.save(refreshTokenEntity);
+        
         const payload: AccessTokenPayload = {
             sub: user.id,
             email: user.email,
@@ -74,7 +75,7 @@ export class AuthService{
                 name: user.tenant.name,
             },
             session:{
-                refreshTokenId:refreshTokenEntity.id
+                refreshTokenId:newRefreshTokenEntity.id
             }
         };
 
@@ -84,8 +85,7 @@ export class AuthService{
             this.logService.actionLog(ipAddress,userAgent,payload.sub,LogType.ACCESS_GRANTED,"Login efetuado",200),
             this.logService.actionLog(ipAddress,userAgent,payload.sub,LogType.REFRESH_TOKEN_ISSUED,"Refresh-Token criado",201),
             this.logService.actionLog(ipAddress,userAgent,payload.sub,LogType.CSRF_TOKEN_CREATED,"X-CSRF-Token criado",201),
-            this.refreshTokenRepository.save(refreshTokenEntity),
-            this.redis.set(`x-csrf-token:${user.id}:${refreshTokenEntity.id}`, newCsrfToken, "EX", 60 * 15)
+            this.redis.set(`x-csrf-token:${user.id}:${newRefreshTokenEntity.id}`, newCsrfToken, {expiration:{type:"EX",value:86400 * 7,}})
         ]);
 
         this.logger.info(`Login efetuado ip: ${ipAddress}`);
@@ -161,7 +161,7 @@ export class AuthService{
         await Promise.all([
             this.logService.actionLog(ipAddress,userAgent,refreshTokenEntity.user.id,LogType.REFRESH_TOKEN_ISSUED,"Refresh-Token criado",201),
             this.logService.actionLog(ipAddress,userAgent,refreshTokenEntity.user.id,LogType.CSRF_TOKEN_CREATED,"X-CSRF-Token criado",201),
-            this.redis.set(`x-csrf-token:${refreshTokenEntity.user.id}:${refreshTokenEntity.id}`, newCsrfToken, "EX", 60 * 15)
+            this.redis.set(`x-csrf-token:${refreshTokenEntity.user.id}:${refreshTokenEntity.id}`, newCsrfToken, {expiration:{type:"EX",value:86400 * 7,}})
         ]);
 
         return {
@@ -177,7 +177,7 @@ export class AuthService{
         await Promise.all([
             this.refreshTokenRepository.save(refreshTokenEntity),
             this.redis.del(`x-csrf-token:${user.sub}:${refreshTokenEntity.id}`),
-            this.redis.set(`blacklist:access-Token:${accessToken}`,"true", "EX", 60 * 15)
+            this.redis.set(`blacklist:access-Token:${accessToken}`,"true", {expiration:{type:"EX",value: 60 * 15,}})
         ]);
         await this.logService.actionLog(ipAddress,userAgent,user.sub,LogType.REFRESH_TOKEN_REVOKED,"Refresh-Token revogado",200),
         await this.logService.actionLog(ipAddress,userAgent,user.sub,LogType.TOKEN_BLACKLISTED,"Access-Token em lista negra",200),
