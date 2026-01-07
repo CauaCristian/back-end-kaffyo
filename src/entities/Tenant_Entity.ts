@@ -7,19 +7,19 @@ export class TenantEntity{
     @PrimaryGeneratedColumn("uuid")
     id!:string;
 
-    @Column({type:"varchar", length:50})
+    @Column({type:"varchar", length:50,unique:true})
     name!:string;
 
-    @Column({type:"varchar"})
+    @Column({type:"varchar",unique:true})
     slug!:string;
 
-    @ManyToOne(()=>PlanEntity,(planEntity)=>planEntity.tenants)
+    @ManyToOne(()=>PlanEntity,(planEntity)=>planEntity.tenants,{nullable: true})
     plan!:PlanEntity;
 
-    @Column({ type: "enum", enum:TenantType})
+    @Column({ type: "enum", enum:TenantType, nullable: true})
     type!: TenantType;
 
-    @Column({type:"int"})
+    @Column({type:"int",nullable: true})
     maxUsers!: number;
 
     @Column({ type: "json", nullable: true})

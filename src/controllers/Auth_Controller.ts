@@ -22,9 +22,9 @@ export class AuthController{
         }
     }
 
-    register:RequestHandler = async (req,res,next) =>{
+    registerUserSolo:RequestHandler = async (req,res,next) =>{
         try{
-            const userResponse = await this.userService.createUser(req.body,req.ip?.replace("::ffff:",""),req.get("user-agent"));
+            const userResponse = await this.userService.createUserSolo(req.body,req.ip?.replace("::ffff:",""),req.get("user-agent"));
             res.status(201).send(userResponse);
         } 
         catch(error){

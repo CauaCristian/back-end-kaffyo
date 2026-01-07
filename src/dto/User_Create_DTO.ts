@@ -25,4 +25,8 @@ export class UserCreateDTO{
     @DocumentIsValid()
     document!:string;
 
+    @IsString()
+    @Length(3,50) 
+    nameTenant!:string;
+    
 }

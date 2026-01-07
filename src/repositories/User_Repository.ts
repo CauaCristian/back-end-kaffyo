@@ -71,7 +71,8 @@ export const userRepository = dataSource.getRepository(UserEntity).extend({
         return await this.findOne({
             where:{
                 email:email
-            }
+            },
+            relations:["tenant"]
         });
 
     },

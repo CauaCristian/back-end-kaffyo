@@ -20,9 +20,9 @@ export class UserController{
             next(error);
         }
     }
-    createUser:RequestHandler = async (req,res,next)=>{
+    createUserSolo:RequestHandler = async (req,res,next)=>{
         try{
-            const response = await this.userService.createUser(req.body,req.ip?.replace("::ffff:",""),req.get("user-agent"));
+            const response = await this.userService.createUserSolo(req.body,req.ip?.replace("::ffff:",""),req.get("user-agent"));
             res.status(201).send(response);
         } catch(error){
             next(error);

@@ -8,7 +8,7 @@ const authRouter = Router();
 const authController = new AuthController();
 
 authRouter.post("/login",rateLimitNoAuth({windowSec:60,maxRequests:5}),authController.login);
-authRouter.post("/register",rateLimitNoAuth({windowSec:60,maxRequests:5}),authController.register);
+authRouter.post("/registerUserSolo",rateLimitNoAuth({windowSec:60,maxRequests:5}),authController.registerUserSolo);
 authRouter.post("/refresh",checkCsrf,rateLimitNoAuth({windowSec:60,maxRequests:5}),authController.refresh);
 authRouter.post("/logout",checkAuth,checkCsrf,rateLimitWithSessionId({windowSec:60,maxRequests:5}),authController.logout);
 

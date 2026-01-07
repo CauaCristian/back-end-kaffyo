@@ -12,6 +12,8 @@ import { LogType } from "../enum/Log_Type";
 import { LogService } from "./Log_Service";
 import { AccessTokenPayload } from "../interfaces/Access_Token_Payload";
 import { UserResponse } from "../interfaces/User_Response";
+import { tenantRepository } from "../repositories/Tenant_Repository";
+import { TenantType } from "../enum/Tenant_Type";
 
 export class UserService{
 
@@ -39,7 +41,7 @@ export class UserService{
         return await this.userRepository.findAllByTenant(Number.parseInt(page),Number.parseInt(limit),effectiveTenantId);
 
     }
-    async createUser(userCreateDTO:UserCreateDTO,ipAddress:string|undefined,userAgent:string|undefined):Promise<UserResponse>{
+    async createUserSolo(userCreateDTO:UserCreateDTO,ipAddress:string|undefined,userAgent:string|undefined):Promise<UserResponse>{
         
         const [emailExists, documentExists] = await Promise.all([
             this.userRepository.findByEmail(userCreateDTO.email),
@@ -55,7 +57,18 @@ export class UserService{
 
         const hashPassword = await bcrypt.hash(userCreateDTO.password,await bcrypt.genSalt(parseInt(hashConfig.salt)));
         userCreateDTO.password = hashPassword;
-        const user = await this.userRepository.createUser(userCreateDTO);
+        const tenant =  await tenantRepository.createTenant({
+
+                name:userCreateDTO.nameTenant,
+                slug:userCreateDTO.nameTenant.replace(" ","-"),
+                type: TenantType.SOLO
+            
+        });
+        const data = {
+            ...userCreateDTO,
+            tenant:tenant
+        }
+        const user = await this.userRepository.createUser(data);
         if(!user) throw createHttpError(400,"Erro ao criar usuário");
         await this.logService.actionLog(ipAddress,userAgent,user.id,LogType.CREATE_ENTITY,"Usuário criado",201);
         return {
